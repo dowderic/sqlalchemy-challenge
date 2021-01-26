@@ -41,15 +41,27 @@ date = dt.datetime(2016, 8, 23)
 plot_results = session.query(Measurement.prcp, Measurement.date).\
     filter(Measurement.date >= date).\
     order_by(Measurement.date.desc()).all()
+session.close()
 return jsonify(plot_results)
 
 @app.route("/api/v1.0/stations")
+def stations():
 
+session = Session(engine)
+
+activity=session.query(Station.id,Measurement.station, func.count(Measurement.id)).group_by(Measurement.station).\
+    filter(Station.station==Measurement.station).\
+    order_by(func.count(Measurement.id).desc()).all()
+
+session.close()
+return jsonify(activity)
 
 @app.route("/api/v1.0/tobs")
+def tobs():
+session = Session(engine)
+date2 = dt.datetime(2016, 8, 18)
+plot_results2 = session.query(Measurement.tobs, Measurement.date).\
+    filter(Measurement.station=='USC00519281', Measurement.date>=date2).all()
 
-@app.route("/api/v1.0/<start>")
-
-
-@app.route("/api/v1.0/<start>/<end>")
-
+session.close()
+return jsonify(plot_results2)
